@@ -1,0 +1,159 @@
+{
+  "entities": {
+    "LottoRound": {
+      "title": "LottoRound",
+      "description": "A single lottery draw result",
+      "type": "object",
+      "properties": {
+        "round": { "type": "integer", "description": "The round number" },
+        "numbers": { "type": "array", "items": { "type": "integer" }, "description": "The 6 winning numbers" },
+        "bonus": { "type": "integer", "description": "The bonus number" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When the draw occurred" }
+      },
+      "required": ["round", "numbers", "bonus"]
+    },
+    "RegionStats": {
+      "title": "RegionStats",
+      "description": "Win statistics for a specific region",
+      "type": "object",
+      "properties": {
+        "regionId": { "type": "string", "description": "The ID of the region (e.g., seoul)" },
+        "winPoints": { "type": "number", "description": "Total win points or frequency" },
+        "lastWinRound": { "type": "integer", "description": "The latest round this region won" }
+      },
+      "required": ["regionId", "winPoints", "lastWinRound"]
+    },
+    "AppConfig": {
+      "title": "AppConfig",
+      "description": "Global application configuration",
+      "type": "object",
+      "properties": {
+        "currentRound": { "type": "integer", "description": "The latest completed round" },
+        "lastUpdated": { "type": "string", "format": "date-time", "description": "Last time data was synced" }
+      },
+      "required": ["currentRound"]
+    },
+    "WinningStore": {
+      "title": "WinningStore",
+      "description": "A store where a winning ticket was sold",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ID for the store" },
+        "name": { "type": "string", "description": "Name of the store" },
+        "address": { "type": "string", "description": "Full address" },
+        "city": { "type": "string", "description": "City/Province" },
+        "district": { "type": "string", "description": "District/Municipality" },
+        "latitude": { "type": "number", "description": "Latitude" },
+        "longitude": { "type": "number", "description": "Longitude" },
+        "winRound": { "type": "integer", "description": "The round number" },
+        "winDate": { "type": "string", "format": "date", "description": "Date of the win" },
+        "storeType": { "type": "string", "description": "Type of store (e.g., Convenience, Specialized)" },
+        "memo": { "type": "string", "description": "Additional notes" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["name", "winRound", "latitude", "longitude"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile and balance information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "googleId": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastLoginAt": { "type": "string", "format": "date-time" },
+        "planType": { "type": "string", "enum": ["free", "premium"] },
+        "freeTokenBalance": { "type": "integer" },
+        "paidTokenBalance": { "type": "integer" },
+        "status": { "type": "string", "enum": ["active", "suspended"] }
+      },
+      "required": ["email", "googleId"]
+    },
+    "UserAccessToken": {
+      "title": "UserAccessToken",
+      "description": "Internal tokens for AI access",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "token": { "type": "string" },
+        "issuedAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "revoked": { "type": "boolean" }
+      },
+      "required": ["userId", "token"]
+    },
+    "AiUsageLog": {
+      "title": "AiUsageLog",
+      "description": "Logs for AI requests",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "requestType": { "type": "string" },
+        "tokenCost": { "type": "integer" },
+        "promptChars": { "type": "integer" },
+        "responseChars": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" }
+      },
+      "required": ["userId", "tokenCost"]
+    },
+    "Purchase": {
+      "title": "Purchase",
+      "description": "In-app purchase records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "productId": { "type": "string" },
+        "platform": { "type": "string" },
+        "purchaseToken": { "type": "string" },
+        "orderId": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "status": { "type": "string" },
+        "purchasedAt": { "type": "string", "format": "date-time" },
+        "validatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "productId", "purchaseToken"]
+    }
+  },
+  "firestore": {
+    "/rounds/{roundId}": {
+      "schema": "LottoRound",
+      "description": "Historical lottery draw results"
+    },
+    "/regionStats/{regionId}": {
+      "schema": "RegionStats",
+      "description": "Aggregated win statistics per region"
+    },
+    "/config/global": {
+      "schema": "AppConfig",
+      "description": "Global app settings"
+    },
+    "/winningStores/{storeId}": {
+      "schema": "WinningStore",
+      "description": "Locations of winning lottery stores"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and balances"
+    },
+    "/accessTokens/{tokenId}": {
+      "schema": "UserAccessToken",
+      "description": "AI access tokens"
+    },
+    "/usageLogs/{logId}": {
+      "schema": "AiUsageLog",
+      "description": "AI usage history"
+    },
+    "/purchases/{purchaseId}": {
+      "schema": "Purchase",
+      "description": "In-app purchase history"
+    }
+  }
+}

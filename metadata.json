@@ -1,0 +1,5 @@
+{
+  "name": "LottoMap Korea",
+  "description": "A Korean Lotto winning region prediction and visualization map based on time-since-last-win probability patterns.",
+  "requestFramePermissions": ["geolocation"]
+}

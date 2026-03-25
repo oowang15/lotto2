@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         request.auth.token.email == "tasaer15@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    // Lotto rounds: Publicly readable (so backend can access), admin writable
+    match /rounds/{roundId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Region stats: Publicly readable, admin writable
+    match /regionStats/{regionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Global config: Publicly readable, admin writable
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Winning stores: Publicly readable, admin writable
+    match /winningStores/{storeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Access tokens: Private
+    match /accessTokens/{tokenId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Usage logs: Private
+    match /usageLogs/{logId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Purchases: Private
+    match /purchases/{purchaseId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if isAdmin();
+    }
+  }
+}
